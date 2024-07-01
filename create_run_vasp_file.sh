@@ -66,6 +66,11 @@ cp KPOINTS ../final_KPOINTS
 cp INCAR ../final_INCAR
 cp vasprun.xml ../
 
+
+# 圧力 (kB)をOUTCARから得る
+pressure=\$(grep "external pressure" OUTCAR | awk '{print \$4}')
+
+
 ### バンドギャップ計算用のDOSCARを作成する
 # 最初の8行をスキップし、4列以上のデータを含む行を無視
 tail -n +9 DOSCAR | awk 'NF <= 5 { print }' > tmp_DOSCAR
@@ -74,27 +79,28 @@ E_fermi=\$(grep "E-fermi" ../final_OUTCAR | awk '{print \$3}')
 OUTPUT_FILE="../../bandgap_result.csv"
 
 echo "E_fermi: \$E_fermi"
+echo "pressure: \$pressure (kB)"
 
 ### E-fermiの値が計算できたかどうかでダミーの値をいれるかどうかを判定する
 if [ -z "\$E_fermi"]; then
     # outputが存在するかどうかをチェック
     if [ -e \$OUTPUT_FILE ]; then
         # ファイルが存在する場合、通常のlsの結果をファイルに出力
-        echo "$FILE_PATH , -1, False" >> \$OUTPUT_FILE
+        echo "$FILE_PATH , -1, False. -1" >> \$OUTPUT_FILE
     else
         # ファイルが存在しない場合、隠しファイルを含むls -aの結果をファイルに出力
-        echo 'file_name, bandgap, nonmetal' > \$OUTPUT_FILE
-        echo "$FILE_PATH , -1, False" >> \$OUTPUT_FILE
+        echo 'file_name, bandgap(eV), nonmetal, pressure(GPa)' > \$OUTPUT_FILE
+        echo "$FILE_PATH , -1, False, -1" >> \$OUTPUT_FILE
     fi
 else
     # outputが存在するかどうかをチェック
     if [ -e \$OUTPUT_FILE ]; then
         # ファイルが存在する場合、通常のlsの結果をファイルに出力
-        python calculate_bandgap.py -f \$E_fermi >> \$OUTPUT_FILE
+        python calculate_bandgap.py -f \$E_fermi -pr \$pressure -ps $FILE_PATH >> \$OUTPUT_FILE
     else
         # ファイルが存在しない場合、隠しファイルを含むls -aの結果をファイルに出力
-        echo 'file_name, bandgap, nonmetal' > \$OUTPUT_FILE
-        python calculate_bandgap.py -f \$E_fermi >> \$OUTPUT_FILE
+        echo 'file_name, bandgap(eV), nonmetal, pressure(GPa)' > \$OUTPUT_FILE
+        python calculate_bandgap.py -f \$E_fermi -pr \$pressure -ps $FILE_PATH >> \$OUTPUT_FILE
     fi
 fi
 

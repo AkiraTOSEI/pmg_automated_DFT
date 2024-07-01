@@ -1,9 +1,18 @@
 import pandas as pd
 import argparse
 
-def analyze_dos(e_fermi=None, eps=1E-3):
-    if e_fermi is None:
-        raise ValueError("Fermi energy must be specified.")
+def read_fermi_energy(file_path):
+    # Placeholder for the code to read Fermi energy from the file
+    with open(file_path, 'r') as file:
+        data = file.read()  # This is a simplification; you would extract the Fermi energy here
+    return float(data.strip())  # Assuming Fermi energy is the only content for simplification
+
+
+def analyze_dos(e_fermi=None, Pressure=None, POSCAR_path="", eps=1E-3):
+    if e_fermi is None or Pressure is None or POSCAR_path == "":
+        raise ValueError("Fermi energy, Pressure, and POSCAR path must be provided.")
+    
+    Pressure = float(Pressure)
     
     # Load data
     dos = pd.read_csv('tmp_DOSCAR', delim_whitespace=True, header=None)
@@ -22,7 +31,7 @@ def analyze_dos(e_fermi=None, eps=1E-3):
         # どうあがいても金属
         non_metal = False
         band_gap = 0
-        print('/home/afujii/coding/automated_DFT/poscar_list/mp-1007907.vasp' ,f', {band_gap:.3f}, {non_metal}')
+        print(POSCAR_path ,f', {band_gap:.3f}, {non_metal}, {(Pressure/10):.3f}') # Pressure is in kilo bar, convert to GPa
         return
     elif (0 < dup1 <= eps) and (dup2 ==0) and (dup3 == 0) and (dup4 == 0) and (0 < ddown1 < eps) and (ddown2 ==0) and (ddown3 == 0) and (ddown4 == 0):
         # まぁギリ許容範囲
@@ -52,14 +61,16 @@ def analyze_dos(e_fermi=None, eps=1E-3):
     
     band_gap = bottom_CB_energy - top_VB_energy
  
-    print('/home/afujii/coding/automated_DFT/poscar_list/mp-1007907.vasp' ,f', {band_gap:.3f}, {non_metal}')
+    print(POSCAR_path ,f', {band_gap:.3f}, {non_metal}, {(Pressure/10):.3f}') # Pressure is in kilo bar, convert to GPa
 
 def main():
     parser = argparse.ArgumentParser(description="Analyze DOS data for band gaps.")
     parser.add_argument("-f", "--fermi", type=float, required=True, help="Fermi energy level")
+    parser.add_argument("-pr", "--Pressure", type=str, required=True, help="Pressure")
+    parser.add_argument("-ps", "--POSCAR", type=str, required=True, help="POSCAR path")
     
     args = parser.parse_args()
-    analyze_dos(args.fermi)
+    analyze_dos(args.fermi, args.Pressure, args.POSCAR)
 
 if __name__ == "__main__":
     main()

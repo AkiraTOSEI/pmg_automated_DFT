@@ -4,7 +4,7 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 FILE_REL_PATH="$1"
-RELAX="NO"  # YES, or NO. Relax引数がなければ、デフォルトで'NO'を使用
+RELAX="YES"  # YES, or NO. Relax引数がなければ、デフォルトで'NO'を使用
 
 # パスを絶対パスに変換する
 FILE_PATH=$(realpath "$FILE_REL_PATH")
