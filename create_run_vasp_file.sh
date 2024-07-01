@@ -16,8 +16,14 @@ cd \$PBS_O_WORKDIR
 export I_MPI_COMPATIBILITY=4
 NPROCS=\$(cat \$PBS_NODEFILE | wc -l)
 
+#!/bin/bash
+
+# 処理開始時刻を取得
+start=$(date +%s)
 
 
+
+date
 EOF
 
 if [ "$RELAX" = "YES" ];  then
@@ -27,6 +33,7 @@ if [ "$RELAX" = "YES" ];  then
     echo "mpiexec -iface ib0 -launcher rsh -machinefile \$PBS_NODEFILE -ppn 16 /home/share/VASP/vasp.5.4.4" >> run_vasp.sh
     echo "cp CONTCAR ../final_scf/POSCAR" >> run_vasp.sh
     echo "cp CONTCAR ../bandgap_cal/POSCAR" >> run_vasp.sh
+    echo "cd ../" >> run_vasp.sh
     echo "###############" >> run_vasp.sh
 
 elif [ "$RELAX" = "NO" ];  then
@@ -109,6 +116,19 @@ echo "###     bandgap cpp ends!           ###"
 echo "#######################################"
 
 cd ../
+
+# 処理終了時刻を取得
+end=$(date +%s)
+
+# 処理にかかった時間を計算
+duration=$((end - start))
+
+# 時間・分・秒に変換
+hours=$((duration / 3600))
+minutes=$(( (duration % 3600) / 60 ))
+seconds=$((duration % 60))
+
+echo "処理時間: ${hours}時間 ${minutes}分 ${seconds}秒"
 
 # 特定のファイル以外を削除
 #rm -rf bandgap_cal final_scf relaxed
