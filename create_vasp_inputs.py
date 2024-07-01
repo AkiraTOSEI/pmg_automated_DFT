@@ -5,7 +5,7 @@ from pymatgen.io.vasp.sets import MPRelaxSet
 import pymatgen.io.vasp.inputs as pgi
 import sys
 
-def main(poscar_path,mode):
+def main(poscar_path):
     relax_dir = 'relaxed'
     final_scf_dir = 'final_scf'
     bandgap_dir = 'bandgap_cal'
@@ -40,10 +40,14 @@ def main(poscar_path,mode):
     vasp_set.poscar.write_file(os.path.join(relax_dir,"POSCAR"))
 
     # POTCAR
-    potcar_symbols = []
+    potcar_symbols, spcieces = [], set()
     for site in MPRelaxSet(s).poscar.as_dict()['structure']['sites']:
+        spcieces.add(site['species'][0]['element'])
         atom = site['label']
-        potcar_symbols.append(vasp_set.config_dict['POTCAR'][atom])
+        pot_sym = vasp_set.config_dict['POTCAR'][atom]
+        if not pot_sym in potcar_symbols:
+            potcar_symbols.append(vasp_set.config_dict['POTCAR'][atom])
+    assert len(spcieces) == len(potcar_symbols)
     potcar = pgi.Potcar(symbols=potcar_symbols,functional='PBE_54')
     potcar.write_file(os.path.join(relax_dir,"POTCAR"))
     potcar.write_file(os.path.join(final_scf_dir,"POTCAR"))
