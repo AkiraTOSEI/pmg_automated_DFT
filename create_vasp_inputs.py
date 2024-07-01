@@ -50,8 +50,8 @@ def main(poscar_path,mode):
     potcar.write_file(os.path.join(bandgap_dir,"POTCAR"))
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python script.py <path_to_POSCAR> <mode>")
+    if len(sys.argv) != 2:
+        print("Usage: python script.py <path_to_POSCAR>")
         sys.exit(1)
     poscar_path = sys.argv[1]
     main(poscar_path)
