@@ -5,7 +5,7 @@ from pymatgen.io.vasp.sets import MPRelaxSet
 import pymatgen.io.vasp.inputs as pgi
 import sys
 
-def main(poscar_path):
+def main(poscar_path,mode):
     relax_dir = 'relaxed'
     final_scf_dir = 'final_scf'
     bandgap_dir = 'bandgap_cal'
@@ -16,7 +16,7 @@ def main(poscar_path):
     s = Structure.from_file(poscar_path)
     # INCAR
     vasp_set = MPRelaxSet(s)
-    relax_incar = vasp_set.incar
+    relax_incar = vasp_set.incar    
     relax_incar.write_file(os.path.join(relax_dir,"INCAR"))
     ## INCAR for final scf
     scf_incar = copy.deepcopy(relax_incar)
@@ -41,7 +41,8 @@ def main(poscar_path):
 
     # POTCAR
     potcar_symbols = []
-    for atom in s.symbol_set:
+    for site in MPRelaxSet(s).poscar.as_dict()['structure']['sites']:
+        atom = site['label']
         potcar_symbols.append(vasp_set.config_dict['POTCAR'][atom])
     potcar = pgi.Potcar(symbols=potcar_symbols,functional='PBE_54')
     potcar.write_file(os.path.join(relax_dir,"POTCAR"))
@@ -49,8 +50,8 @@ def main(poscar_path):
     potcar.write_file(os.path.join(bandgap_dir,"POTCAR"))
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <path_to_POSCAR>")
+    if len(sys.argv) != 3:
+        print("Usage: python script.py <path_to_POSCAR> <mode>")
         sys.exit(1)
     poscar_path = sys.argv[1]
     main(poscar_path)
