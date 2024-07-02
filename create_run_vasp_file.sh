@@ -39,8 +39,8 @@ if [ "$RELAX" = "YES" ];  then
 elif [ "$RELAX" = "NO" ];  then
     echo "############### No Relaxation"  >> run_vasp.sh
     echo "echo '############### No Relaxation' " >> run_vasp.sh
-    echo "cp POSCAR ./final_scf" >> run_vasp.sh
-    echo "cp POSCAR ./bandgap_cal/" >> run_vasp.sh
+    echo "cp relaxed/POSCAR ./final_scf" >> run_vasp.sh
+    echo "cp relaxed/POSCAR ./bandgap_cal/" >> run_vasp.sh
 else
     echo "Error: Invalid argument - $RELAX"
     exit 2

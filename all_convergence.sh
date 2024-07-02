@@ -17,11 +17,11 @@ rm -rf $WORK_DIR/*
 
 # 必要なファイルをコピー
 cp create_vasp_inputs.py create_run_vasp_file.sh ./$WORK_DIR
-cp $FILE_REL_PATH ./$WORK_DIR/POSCAR
+cp $FILE_REL_PATH ./$WORK_DIR/"$(basename "$FILE_PATH")"
 cd $WORK_DIR
 
 # VASPの入力ファイルなどを作成
-python create_vasp_inputs.py POSCAR
+python create_vasp_inputs.py "$(basename "$FILE_PATH")"
 cp ../calculate_bandgap.py ./bandgap_cal
 sh create_run_vasp_file.sh $FILE_PATH $RELAX
 
