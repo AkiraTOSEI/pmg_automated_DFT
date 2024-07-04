@@ -44,7 +44,13 @@ def main(poscar_path):
     for site in MPRelaxSet(s).poscar.as_dict()['structure']['sites']:
         spcieces.add(site['species'][0]['element'])
         atom = site['label']
-        pot_sym = vasp_set.config_dict['POTCAR'][atom]
+        # Choose Yb_3 instead of Yb. see https://github.com/materialsproject/pymatgen/issues/2968
+        if atom == 'Yb':
+            pot_sym = 'Yb_3'
+        else:
+            pot_sym = vasp_set.config_dict['POTCAR'][atom]
+        if not pot_sym in potcar_symbols:
+            potcar_symbols.append(pot_sym)
         if not pot_sym in potcar_symbols:
             potcar_symbols.append(vasp_set.config_dict['POTCAR'][atom])
     assert len(spcieces) == len(potcar_symbols)
